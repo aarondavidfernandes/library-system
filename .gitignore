@@ -134,6 +134,22 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
+# OS-SPECIFIC FILES
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
