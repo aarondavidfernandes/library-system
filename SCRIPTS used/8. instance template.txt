@@ -1,0 +1,10 @@
+GOOGLE CLI: 
+
+gcloud compute instance-templates create library-template \
+    --machine-type=e2-micro \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --boot-disk-size=30GB \
+    --tags=http-server,https-server \
+    --metadata-from-file startup-script=~/startup-script.sh \
+    --region=us-central1

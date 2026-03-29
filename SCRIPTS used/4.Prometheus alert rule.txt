@@ -1,0 +1,13 @@
+sudo tee /etc/prometheus/alert_rules.yml > /dev/null <<'EOF'
+groups:
+  - name: resource_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 75
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU usage exceeded 75%"
+          description: "CPU is at {{ $value }}% - triggering auto-scale"
+EOF

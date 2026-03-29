@@ -1,0 +1,36 @@
+tee ~/startup-script.sh > /dev/null <<'EOF'
+#!/bin/bash
+set -e
+apt-get update -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt-get install -y nodejs postgresql-client git nginx
+
+git clone https://github.com/aarondavidfernandes/library-system.git /opt/library-app
+cd /opt/library-app
+
+cat > /opt/library-app/api-server/.env <<ENVEOF
+PORT=5000
+DB_HOST=localhost
+DB_USER=library_admin
+DB_PASSWORD=LibraryDB@2026
+DB_NAME=library_db
+JWT_SECRET=production-secret-change-me
+ENVEOF
+
+cd /opt/library-app/api-server
+npm install
+npm install -g pm2
+pm2 start server.js --name library-api
+pm2 save
+pm2 startup
+
+cd /opt/library-app/frontend
+npm install
+npm run build
+cp -r build/* /var/www/html/
+systemctl restart nginx
+
+echo "Startup completed successfully" > /var/log/startup.log
+EOF
+
+chmod +x ~/startup-script.sh

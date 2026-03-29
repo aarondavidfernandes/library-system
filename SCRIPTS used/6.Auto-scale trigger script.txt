@@ -1,0 +1,34 @@
+sudo tee /opt/auto-scale.sh > /dev/null <<'EOF'
+#!/bin/bash
+LOG="/var/log/autoscale.log"
+THRESHOLD=75
+PROJECT="library-autoscale"
+MIG="library-mig"
+ZONE="us-central1-a"
+
+echo "$(date): Checking CPU usage..." >> $LOG
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+CPU_INT=${CPU%.*}
+echo "$(date): Current CPU: $CPU_INT%" >> $LOG
+
+if [ "$CPU_INT" -gt "$THRESHOLD" ]; then
+    echo "$(date): CPU exceeded $THRESHOLD%. Triggering GCP scale-out..." >> $LOG
+    CURRENT=$(gcloud compute instance-groups managed describe $MIG \
+        --zone=$ZONE --project=$PROJECT \
+        --format="value(targetSize)" 2>/dev/null)
+    if [ -n "$CURRENT" ]; then
+        NEW_SIZE=$((CURRENT + 1))
+        if [ $NEW_SIZE -le 5 ]; then
+            gcloud compute instance-groups managed resize $MIG \
+                --size=$NEW_SIZE --zone=$ZONE --project=$PROJECT
+            echo "$(date): Scaled MIG to $NEW_SIZE instances." >> $LOG
+        else
+            echo "$(date): Already at max replicas (5)." >> $LOG
+        fi
+    fi
+else
+    echo "$(date): CPU within limits. No action needed." >> $LOG
+fi
+EOF
+
+sudo chmod +x /opt/auto-scale.sh

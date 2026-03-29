@@ -1,0 +1,8 @@
+sudo -u postgres psql <<EOF
+CREATE DATABASE library_db;
+CREATE USER library_admin WITH ENCRYPTED PASSWORD 'LibraryDB@2026';
+GRANT ALL PRIVILEGES ON DATABASE library_db TO library_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO library_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO library_admin;
+\q
+EOF
