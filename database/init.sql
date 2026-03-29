@@ -124,3 +124,6 @@ CREATE TRIGGER issued_books_timestamp
     BEFORE UPDATE ON issued_books 
     FOR EACH ROW 
     EXECUTE FUNCTION update_timestamp();
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO library_admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO library_admin;
